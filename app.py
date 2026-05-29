@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Insurance Premium Predictor API."""
-import os
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, List
-import joblib, pandas as pd
+import joblib, pandas as pd, io, json, os
 
 app = FastAPI(title="Insurance Premium Predictor")
 app.add_middleware(
@@ -16,6 +15,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 pipeline = joblib.load("models/final_pipeline.pkl")
+_fi_file = "models/feature_importance.json"
+_feature_importance = json.load(open(_fi_file)) if os.path.exists(_fi_file) else []
 
 # Pipeline expects these columns (id and Policy Start Date dropped during retraining;
 # Policy Start Date is parsed into 4 numeric components at prediction time).
@@ -107,6 +108,16 @@ def predict_batch(data: List[InputData]):
     df = pd.concat([d.to_pipeline_df() for d in data], ignore_index=True)
     preds = pipeline.predict(df)
     return {"predictions": preds.tolist()}
+
+@app.post("/predict/upload")
+async def predict_upload(file: UploadFile = File(...)):
+    """Upload a CSV — returns predictions for every row."""
+    if not file.filename.lower().endswith(".csv"):
+        raise HTTPException(400, "Only CSV files are accepted")
+    contents = await file.read()
+    df_up = pd.read_csv(io.BytesIO(contents))
+    preds_up = pipeline.predict(df_up)
+    return {"count": len(preds_up), "predictions": preds_up.tolist()}
 
 if __name__ == "__main__":
     import uvicorn

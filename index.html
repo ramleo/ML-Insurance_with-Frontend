@@ -187,7 +187,7 @@
             <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1565c0,#2979ff);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.3)">⚗</div>
             <div>
               <div style="color:#fff;font-weight:700;font-size:1.05rem">Feature Inputs</div>
-              <div style="color:rgba(255,255,255,.38);font-size:.82rem">Enter your feature values below &nbsp;·&nbsp; <span style="color:#fbbf24">★</span> = required</div>
+              <div style="color:rgba(255,255,255,.38);font-size:.82rem">Enter your feature values below</div>
             </div>
           </div>
 
@@ -195,80 +195,72 @@
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px">
               
           <div>
-            <label class="inp-lbl">Annual Income ★</label>
-            <input type="number" name="Annual Income" class="inp" placeholder="e.g. 50000" step="any" min="0" required>
+            <label class="inp-lbl">Annual Income</label>
+            <input type="number" name="Annual Income" class="inp" placeholder="e.g. 0" step="any" min="0" required>
           </div>
           <div>
-            <label class="inp-lbl">Previous Claims ★</label>
-            <input type="number" name="Previous Claims" class="inp" placeholder="e.g. 2" step="any" min="0" required>
+            <label class="inp-lbl">Previous Claims</label>
+            <input type="number" name="Previous Claims" class="inp" placeholder="e.g. 0" step="any" min="0" required>
           </div>
           <div>
-            <label class="inp-lbl">Credit Score ★</label>
-            <input type="number" name="Credit Score" class="inp" placeholder="e.g. 700" step="any" min="0" required>
+            <label class="inp-lbl">Credit Score</label>
+            <input type="number" name="Credit Score" class="inp" placeholder="e.g. 0" step="any" min="0" required>
           </div>
           <div>
-            <label class="inp-lbl">Insurance Duration ★</label>
-            <input type="number" name="Insurance Duration" class="inp" placeholder="e.g. 3" step="any" min="0" required>
+            <label class="inp-lbl">Insurance Duration</label>
+            <input type="number" name="Insurance Duration" class="inp" placeholder="e.g. 0" step="any" min="0" required>
           </div>
           <div>
-            <label class="inp-lbl">Health Score ★</label>
-            <input type="number" name="Health Score" class="inp" placeholder="e.g. 8.0" step="any" min="0" required>
+            <label class="inp-lbl">Health Score</label>
+            <input type="number" name="Health Score" class="inp" placeholder="e.g. 0" step="any" min="0" required>
           </div>
           <div>
             <label class="inp-lbl">Age</label>
-            <input type="number" name="Age" class="inp" placeholder="Optional" step="any" min="0">
+            <input type="number" name="Age" class="inp" placeholder="e.g. 0" step="any" min="0" required>
           </div>
           <div>
             <label class="inp-lbl">Number Of Dependents</label>
-            <input type="number" name="Number of Dependents" class="inp" placeholder="Optional" step="any" min="0">
+            <input type="number" name="Number of Dependents" class="inp" placeholder="e.g. 0" step="any" min="0" required>
           </div>
           <div>
             <label class="inp-lbl">Vehicle Age</label>
-            <input type="number" name="Vehicle Age" class="inp" placeholder="Optional" step="any" min="0">
+            <input type="number" name="Vehicle Age" class="inp" placeholder="e.g. 0" step="any" min="0" required>
           </div>
           <div>
             <label class="inp-lbl">Gender</label>
-            <input type="text" name="Gender" class="inp" placeholder="Optional">
+            <input type="text" name="Gender" class="inp" placeholder="Enter value" required>
           </div>
           <div>
             <label class="inp-lbl">Marital Status</label>
-            <input type="text" name="Marital Status" class="inp" placeholder="Optional">
+            <input type="text" name="Marital Status" class="inp" placeholder="Enter value" required>
           </div>
           <div>
             <label class="inp-lbl">Education Level</label>
-            <input type="text" name="Education Level" class="inp" placeholder="Optional">
+            <input type="text" name="Education Level" class="inp" placeholder="Enter value" required>
           </div>
           <div>
             <label class="inp-lbl">Occupation</label>
-            <input type="text" name="Occupation" class="inp" placeholder="Optional">
+            <input type="text" name="Occupation" class="inp" placeholder="Enter value" required>
           </div>
           <div>
             <label class="inp-lbl">Location</label>
-            <input type="text" name="Location" class="inp" placeholder="Optional">
+            <input type="text" name="Location" class="inp" placeholder="Enter value" required>
           </div>
           <div>
             <label class="inp-lbl">Policy Type</label>
-            <input type="text" name="Policy Type" class="inp" placeholder="Optional">
-          </div>
-          <div>
-            <label class="inp-lbl">Policy Start Date</label>
-            <input type="text" name="Policy Start Date" class="inp" placeholder="Optional">
-          </div>
-          <div>
-            <label class="inp-lbl">Customer Feedback</label>
-            <input type="text" name="Customer Feedback" class="inp" placeholder="Optional">
+            <input type="text" name="Policy Type" class="inp" placeholder="Enter value" required>
           </div>
           <div>
             <label class="inp-lbl">Smoking Status</label>
-            <input type="text" name="Smoking Status" class="inp" placeholder="Optional">
+            <input type="text" name="Smoking Status" class="inp" placeholder="Enter value" required>
           </div>
           <div>
             <label class="inp-lbl">Exercise Frequency</label>
-            <input type="text" name="Exercise Frequency" class="inp" placeholder="Optional">
+            <input type="text" name="Exercise Frequency" class="inp" placeholder="Enter value" required>
           </div>
           <div>
             <label class="inp-lbl">Property Type</label>
-            <input type="text" name="Property Type" class="inp" placeholder="Optional">
+            <input type="text" name="Property Type" class="inp" placeholder="Enter value" required>
           </div>
             </div>
             <button type="submit" class="btn-predict" id="pBtn">
@@ -276,12 +268,22 @@
             </button>
           </form>
 
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)">
+            <div style="color:rgba(255,255,255,.25);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Batch Predict via CSV</div>
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.2);border-radius:10px;cursor:pointer">
+              <span style="font-size:1.1rem">&#128196;</span>
+              <span id="uploadTxt" style="color:rgba(255,255,255,.5);font-size:.83rem">Drop CSV or click to upload</span>
+              <input type="file" accept=".csv" id="csvFile" style="display:none">
+            </label>
+            <div id="batchResult" style="display:none;margin-top:8px;max-height:140px;overflow-y:auto;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px;font-size:.78rem;color:rgba(255,255,255,.65)"></div>
+          </div>
+
           <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">
             <div style="color:rgba(255,255,255,.25);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">About this model</div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
               <div class="mini-stat">
                 <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px">Algorithm</div>
-                <div style="color:#fff;font-weight:600;font-size:.82rem">—</div>
+                <div style="color:#fff;font-weight:600;font-size:.82rem">Gradient Boosting</div>
               </div>
               <div class="mini-stat">
                 <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px">Accuracy</div>
@@ -326,6 +328,11 @@
             <div id="probSec" style="display:none;margin-bottom:20px">
               <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">Class Probabilities</div>
               <div id="probBars"></div>
+            </div>
+
+            <div id="fiSec" style="display:none;margin-bottom:16px">
+              <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Key Factors</div>
+              <div id="fiBars"></div>
             </div>
 
             <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;margin-top:auto">
@@ -375,6 +382,29 @@
   var probBars    = document.getElementById('probBars');
   var errMsg      = document.getElementById('errMsg');
   var inputSum    = document.getElementById('inputSummary');
+  var fiSec       = document.getElementById('fiSec');
+  var fiBars      = document.getElementById('fiBars');
+  var csvFile     = document.getElementById('csvFile');
+  var batchResult = document.getElementById('batchResult');
+  var uploadTxt   = document.getElementById('uploadTxt');
+
+  // ── CSV upload → /predict/upload ───────────────────────────────────────────
+  if (csvFile) {
+    csvFile.addEventListener('change', function() {
+      var f = csvFile.files[0]; if (!f) return;
+      uploadTxt.textContent = f.name;
+      var fd = new FormData(); fd.append('file', f);
+      batchResult.style.display = 'block';
+      batchResult.textContent = 'Uploading…';
+      fetch('/predict/upload', {method:'POST', body:fd})
+        .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+        .then(function(d){
+          var preview = d.predictions.slice(0,20).join(', ') + (d.count>20 ? '…' : '');
+          batchResult.innerHTML = '<b>'+d.count+' predictions:</b><br>'+preview;
+        })
+        .catch(function(e){ batchResult.textContent = 'Upload failed: '+e.message; });
+    });
+  }
 
   // ── Server health check with cold-start retry ──────────────────────────────
   var _healthTimer = null;
@@ -520,6 +550,17 @@
         '<span style="color:#fff;font-weight:500">' + pair[1] + '</span>';
       inputSum.appendChild(d);
     });
+
+    if (data.feature_importance && data.feature_importance.length) {
+      var fiMax = data.feature_importance[0].importance || 1;
+      fiBars.innerHTML = data.feature_importance.slice(0,8).map(function(fi){
+        var pct = Math.round(fi.importance / fiMax * 100);
+        var lbl = fi.feature.replace(/x\d+_/g,'').replace(/[_\-]/g,' ').trim();
+        return '<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:3px"><span style="color:rgba(255,255,255,.6)">'+lbl+'</span><span style="color:rgba(255,255,255,.4)">'+pct+'%</span></div>'+
+               '<div style="height:5px;background:rgba(255,255,255,.08);border-radius:99px"><div style="height:5px;border-radius:99px;background:linear-gradient(90deg,#1565c0,#2979ff);width:'+pct+'%"></div></div></div>';
+      }).join('');
+      fiSec.style.display = 'block';
+    } else { fiSec.style.display = 'none'; }
 
     resultState.style.display = 'flex';
     resultState.classList.remove('fade-up');

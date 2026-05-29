@@ -101,7 +101,7 @@ def health():
 def predict(data: InputData):
     df = data.to_pipeline_df()
     pred = pipeline.predict(df)[0]
-    return {"prediction": float(pred)}
+    return {"prediction": float(pred), "feature_importance": _feature_importance}
 
 @app.post("/predict/batch")
 def predict_batch(data: List[InputData]):
@@ -118,6 +118,11 @@ async def predict_upload(file: UploadFile = File(...)):
     df_up = pd.read_csv(io.BytesIO(contents))
     preds_up = pipeline.predict(df_up)
     return {"count": len(preds_up), "predictions": preds_up.tolist()}
+
+
+@app.get("/importance")
+def importance():
+    return {"feature_importance": _feature_importance}
 
 if __name__ == "__main__":
     import uvicorn

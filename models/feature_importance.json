@@ -1,0 +1,62 @@
+[
+  {
+    "feature": "num__Annual Income",
+    "importance": 1.0
+  },
+  {
+    "feature": "num__Credit Score",
+    "importance": 0.6402
+  },
+  {
+    "feature": "num__Health Score",
+    "importance": 0.4242
+  },
+  {
+    "feature": "num__Previous Claims",
+    "importance": 0.2925
+  },
+  {
+    "feature": "num__Insurance Duration",
+    "importance": 0.1929
+  },
+  {
+    "feature": "num__psd_day",
+    "importance": 0.1798
+  },
+  {
+    "feature": "num__Age",
+    "importance": 0.1785
+  },
+  {
+    "feature": "num__Vehicle Age",
+    "importance": 0.1371
+  },
+  {
+    "feature": "num__psd_month",
+    "importance": 0.1146
+  },
+  {
+    "feature": "num__psd_year",
+    "importance": 0.1055
+  },
+  {
+    "feature": "num__psd_day_of_week",
+    "importance": 0.0813
+  },
+  {
+    "feature": "num__Number of Dependents",
+    "importance": 0.0438
+  },
+  {
+    "feature": "cat__Customer Feedback_Poor",
+    "importance": 0.0408
+  },
+  {
+    "feature": "cat__Property Type_House",
+    "importance": 0.0256
+  },
+  {
+    "feature": "cat__Property Type_Apartment",
+    "importance": 0.0242
+  }
+]

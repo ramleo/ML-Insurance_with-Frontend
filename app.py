@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Auto-generated FastAPI prediction API."""
+"""Insurance Premium Predictor API."""
 import os
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 import joblib, pandas as pd
 
-app = FastAPI(title="ML Prediction API")
+app = FastAPI(title="Insurance Premium Predictor")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,10 +17,22 @@ app.add_middleware(
 )
 pipeline = joblib.load("models/final_pipeline.pkl")
 
+# Pipeline expects these columns (id and Policy Start Date dropped during retraining;
+# Policy Start Date is parsed into 4 numeric components at prediction time).
+NUM_COLS = [
+    "Age", "Annual Income", "Number of Dependents", "Health Score",
+    "Previous Claims", "Vehicle Age", "Credit Score", "Insurance Duration",
+    "psd_year", "psd_month", "psd_day", "psd_day_of_week",
+]
+CAT_COLS = [
+    "Gender", "Marital Status", "Education Level", "Occupation", "Location",
+    "Policy Type", "Customer Feedback", "Smoking Status", "Exercise Frequency",
+    "Property Type",
+]
+
 class InputData(BaseModel):
     model_config = {"populate_by_name": True}
 
-    id: Optional[float] = None
     Age: Optional[float] = None
     Annual_Income: Optional[float] = Field(None, alias="Annual Income")
     Number_of_Dependents: Optional[float] = Field(None, alias="Number of Dependents")
@@ -42,9 +54,12 @@ class InputData(BaseModel):
     Property_Type: Optional[str] = Field(None, alias="Property Type")
 
     def to_pipeline_df(self) -> pd.DataFrame:
-        """Return a DataFrame using the original column names the pipeline expects."""
-        return pd.DataFrame([{
-            "id": self.id,
+        """Build the DataFrame the retrained pipeline expects.
+
+        Policy Start Date is parsed into 4 numeric components; id is dropped.
+        """
+        psd = pd.to_datetime(self.Policy_Start_Date, errors="coerce")
+        row = {
             "Age": self.Age,
             "Annual Income": self.Annual_Income,
             "Number of Dependents": self.Number_of_Dependents,
@@ -53,18 +68,22 @@ class InputData(BaseModel):
             "Vehicle Age": self.Vehicle_Age,
             "Credit Score": self.Credit_Score,
             "Insurance Duration": self.Insurance_Duration,
+            "psd_year":        psd.year        if not pd.isnull(psd) else None,
+            "psd_month":       psd.month       if not pd.isnull(psd) else None,
+            "psd_day":         psd.day         if not pd.isnull(psd) else None,
+            "psd_day_of_week": psd.dayofweek   if not pd.isnull(psd) else None,
             "Gender": self.Gender,
             "Marital Status": self.Marital_Status,
             "Education Level": self.Education_Level,
             "Occupation": self.Occupation,
             "Location": self.Location,
             "Policy Type": self.Policy_Type,
-            "Policy Start Date": self.Policy_Start_Date,
             "Customer Feedback": self.Customer_Feedback,
             "Smoking Status": self.Smoking_Status,
             "Exercise Frequency": self.Exercise_Frequency,
             "Property Type": self.Property_Type,
-        }])
+        }
+        return pd.DataFrame([row])
 
 @app.get("/")
 def index():

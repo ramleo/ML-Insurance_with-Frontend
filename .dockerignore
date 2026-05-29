@@ -1,0 +1,13 @@
+.git/
+__pycache__/
+.venv/
+data/
+plots/
+tests/
+docs/
+*.md
+.env
+.DS_Store
+.claude/
+*.py[cod]
+*.log

@@ -740,34 +740,42 @@
 
       // Slider element
       if (!document.getElementById('sl_' + key)) {
+        var hasMax = r.max !== null && r.max !== undefined;
+        var slMax  = r.slider_max || (hasMax ? r.max : 500000);
         var sl = document.createElement('input');
         sl.type = 'range'; sl.className = 'slider'; sl.id = 'sl_' + key;
-        sl.min = r.min; sl.max = r.max; sl.step = r.step;
+        sl.min = r.min; sl.max = slMax; sl.step = r.step;
         inp.parentElement.appendChild(sl);
 
         var sv2 = document.getElementById('sv_' + key);
 
-        // Apply range constraints to the number input itself
+        // Apply min always; only apply max if there is a hard upper limit
         inp.min  = r.min;
-        inp.max  = r.max;
         inp.step = r.step;
-        inp.placeholder = r.min + ' – ' + Math.round(r.max);
+        if (hasMax) {
+          inp.max = r.max;
+          inp.placeholder = r.min.toLocaleString() + ' – ' + r.max.toLocaleString();
+        } else {
+          inp.removeAttribute('max');
+          inp.placeholder = r.min.toLocaleString() + '+  (no upper limit)';
+        }
 
         // Input → slider (sync only, no auto-predict)
         inp.addEventListener('input', function() {
           var v = parseFloat(this.value);
-          if (!isNaN(v) && v >= 0) {
-            if (v > parseFloat(sl.max)) { sl.max = Math.ceil(v * 2); }
+          if (!isNaN(v) && v >= parseFloat(inp.min)) {
+            if (v > parseFloat(sl.max)) { sl.max = Math.ceil(v * 1.5); }
             sl.value = v;
             if (sv2) sv2.textContent = v.toLocaleString();
           } else { if (sv2) sv2.textContent = ''; }
         });
 
-        // Clamp to range on blur
+        // Clamp to min on blur; only clamp max if there is a hard upper limit
         inp.addEventListener('blur', function() {
           var v = parseFloat(this.value);
           if (!isNaN(v)) {
-            var mn = parseFloat(this.min), mx = parseFloat(this.max);
+            var mn = parseFloat(this.min);
+            var mx = this.max !== '' ? parseFloat(this.max) : NaN;
             if (!isNaN(mn) && v < mn) { this.value = mn; sl.value = mn; if (sv2) sv2.textContent = mn.toLocaleString(); }
             if (!isNaN(mx) && v > mx) { this.value = mx; sl.value = mx; if (sv2) sv2.textContent = mx.toLocaleString(); }
           }

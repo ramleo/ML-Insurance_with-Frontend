@@ -1,42 +1,51 @@
 {
   "Age": {
-    "min": 18.0,
-    "max": 66.3,
-    "step": 1
+    "min": 18,
+    "max": 85,
+    "step": 1,
+    "note": "Legal minimum 18; most insurers cap at 85"
   },
   "Annual Income": {
-    "min": 17.0,
-    "max": 157493.9,
-    "step": 1000
+    "min": 0,
+    "max": null,
+    "slider_max": 500000,
+    "step": 1000,
+    "note": "No upper limit; slider defaults to 500,000 and expands as you type"
   },
   "Number of Dependents": {
     "min": 0,
-    "max": 4.2,
-    "step": 1
+    "max": 10,
+    "step": 1,
+    "note": "Health plans typically support 0–10 dependents"
   },
   "Health Score": {
-    "min": 2.46,
-    "max": 58.63,
-    "step": 0.1
+    "min": 0,
+    "max": 100,
+    "step": 0.1,
+    "note": "0–100 scale used in this dataset"
   },
   "Previous Claims": {
     "min": 0,
-    "max": 8.4,
-    "step": 1
+    "max": 10,
+    "step": 1,
+    "note": "5–7 year lookback; 0–10 covers realistic range"
   },
   "Vehicle Age": {
     "min": 0,
-    "max": 19.95,
-    "step": 1
+    "max": 25,
+    "step": 1,
+    "note": "0 = new vehicle; 25 = classic car threshold"
   },
   "Credit Score": {
-    "min": 300.0,
-    "max": 876.45,
-    "step": 1
+    "min": 300,
+    "max": 850,
+    "step": 1,
+    "note": "Standard FICO Score range: 300–850"
   },
   "Insurance Duration": {
-    "min": 1.0,
-    "max": 9.4,
-    "step": 1
+    "min": 1,
+    "max": 40,
+    "step": 1,
+    "note": "Years; 1 year minimum, up to 40 for long-term life insurance"
   }
 }

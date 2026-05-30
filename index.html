@@ -330,12 +330,12 @@
               <div id="probBars"></div>
             </div>
 
-            <div id="fiSec" style="display:none;margin-bottom:16px">
+            <div id="fiSec" style="display:none;flex-direction:column;flex:1;margin-bottom:16px">
               <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Key Factors</div>
-              <div id="fiBars"></div>
+              <div id="fiBars" style="flex:1"></div>
             </div>
 
-            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;margin-top:auto">
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;margin-top:12px">
               <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Input Summary</div>
               <div id="inputSummary" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.84rem"></div>
             </div>
@@ -502,7 +502,7 @@
 
   function showResult(data, summary) {
     function _fmt(s){return s.replace(/[-_]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});}
-    resVal.textContent = IS_CLASS ? _fmt(String(data.prediction)) : data.prediction;
+    resVal.textContent = IS_CLASS ? _fmt(String(data.prediction)) : Number(data.prediction).toFixed(2);
 
     if (IS_CLASS && data.probabilities) {
       var probs  = Array.isArray(data.probabilities) ? data.probabilities : Object.values(data.probabilities);
@@ -553,13 +553,22 @@
 
     if (data.feature_importance && data.feature_importance.length) {
       var fiMax = data.feature_importance[0].importance || 1;
-      fiBars.innerHTML = data.feature_importance.slice(0,8).map(function(fi){
+      fiBars.innerHTML = data.feature_importance.map(function(fi){
         var pct = Math.round(fi.importance / fiMax * 100);
-        var lbl = fi.feature.replace(/x\d+_/g,'').replace(/[_\-]/g,' ').trim();
-        return '<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:3px"><span style="color:rgba(255,255,255,.6)">'+lbl+'</span><span style="color:rgba(255,255,255,.4)">'+pct+'%</span></div>'+
-               '<div style="height:5px;background:rgba(255,255,255,.08);border-radius:99px"><div style="height:5px;border-radius:99px;background:linear-gradient(90deg,#1565c0,#2979ff);width:'+pct+'%"></div></div></div>';
+        var lbl = fi.feature.replace(/^\w+__/,'').replace(/[_\-]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}).trim();
+        var opacity = 0.35 + (fi.importance / fiMax) * 0.65;
+        return '<div style="margin-bottom:9px">'+
+          '<div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:4px">'+
+            '<span style="color:rgba(255,255,255,'+opacity.toFixed(2)+');font-weight:'+(pct===100?'600':'400')+'">'+lbl+'</span>'+
+            '<span style="color:rgba(255,255,255,.45);font-size:.72rem">'+pct+'%</span>'+
+          '</div>'+
+          '<div style="height:6px;background:rgba(255,255,255,.07);border-radius:99px">'+
+            '<div style="height:6px;border-radius:99px;background:linear-gradient(90deg,#1565c0,#2979ff);width:'+pct+'%;opacity:'+opacity.toFixed(2)+'"></div>'+
+          '</div></div>';
       }).join('');
-      fiSec.style.display = 'block';
+      fiSec.style.display = 'flex';
+      fiSec.style.flexDirection = 'column';
+      fiSec.style.flex = '1';
     } else { fiSec.style.display = 'none'; }
 
     resultState.style.display = 'flex';

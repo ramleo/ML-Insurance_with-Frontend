@@ -313,10 +313,11 @@
     .hist-table .run-col  { color: var(--run-col); }
     .sum-row { display:flex; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--td-border); gap:4px; }
     .sum-row:last-child { border-bottom:none; }
-    .sum-lbl { flex:1.3; font-size:.84rem; color:rgba(255,255,255,.35); }
-    .sum-val { flex:0 0 auto; min-width:52px; text-align:right; font-weight:500; font-size:.84rem; color:#fff; padding-right:16px; }
-    .sum-val:last-child { padding-right:0; }
-    .sum-val + .sum-lbl { border-left:1px solid rgba(255,255,255,.22); padding-left:16px; margin-left:8px; }
+    .sum-lbl { flex:1; font-size:.84rem; color:rgba(255,255,255,.35); min-width:0; }
+    .sum-val { flex:0 0 auto; min-width:48px; text-align:right; font-weight:500; font-size:.84rem; color:#fff; }
+    .sum-col { flex:1; min-width:0; }
+    .sum-divider { width:1px; background:rgba(255,255,255,.22); margin:0 14px; flex-shrink:0; align-self:stretch; }
+    #inputSummary { display:flex; align-items:stretch; }
 
     /* ── Light theme overrides for inline-styled elements ──────────────────── */
     [data-theme="light"] #resVal      { color: #0a1a35 !important; }
@@ -346,7 +347,7 @@
     [data-theme="light"] #resultState > div:last-child > div:first-child { color: rgba(10,26,53,.42) !important; }
     [data-theme="light"] .sum-lbl { color: rgba(10,26,53,.45) !important; }
     [data-theme="light"] .sum-val { color: #0a1a35 !important; }
-    [data-theme="light"] .sum-val + .sum-lbl { border-left-color: rgba(41,121,255,.15) !important; }
+    [data-theme="light"] .sum-divider { background: rgba(41,121,255,.2) !important; }
     /* Feature importance bar labels and tracks */
     [data-theme="light"] #fiBars span { color: rgba(10,26,53,.65) !important; }
     [data-theme="light"] #fiBars > div > div:last-child { background: rgba(41,121,255,.09) !important; }
@@ -918,16 +919,15 @@
     }
 
     inputSum.innerHTML = '';
-    for (var _si = 0; _si < summary.length; _si += 2) {
-      var _row = document.createElement('div');
-      _row.className = 'sum-row';
-      var _L = summary[_si], _R = _si + 1 < summary.length ? summary[_si + 1] : null;
-      _row.innerHTML =
-        '<span class="sum-lbl">' + _L[0] + '</span>' +
-        '<span class="sum-val">' + _L[1] + '</span>' +
-        (_R ? '<span class="sum-lbl">' + _R[0] + '</span><span class="sum-val" style="padding-right:0">' + _R[1] + '</span>' : '');
-      inputSum.appendChild(_row);
-    }
+    var _lCol = document.createElement('div'); _lCol.className = 'sum-col';
+    var _sep  = document.createElement('div'); _sep.className  = 'sum-divider';
+    var _rCol = document.createElement('div'); _rCol.className = 'sum-col';
+    summary.forEach(function(_p, _si) {
+      var _row = document.createElement('div'); _row.className = 'sum-row';
+      _row.innerHTML = '<span class="sum-lbl">' + _p[0] + '</span><span class="sum-val">' + _p[1] + '</span>';
+      (_si % 2 === 0 ? _lCol : _rCol).appendChild(_row);
+    });
+    inputSum.appendChild(_lCol); inputSum.appendChild(_sep); inputSum.appendChild(_rCol);
 
     if (data.feature_importance && data.feature_importance.length) {
       var fiMax = data.feature_importance[0].importance || 1;

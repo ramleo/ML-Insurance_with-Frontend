@@ -747,7 +747,13 @@
 
         var sv2 = document.getElementById('sv_' + key);
 
-        // Input → slider
+        // Apply range constraints to the number input itself
+        inp.min  = r.min;
+        inp.max  = r.max;
+        inp.step = r.step;
+        inp.placeholder = r.min + ' – ' + Math.round(r.max);
+
+        // Input → slider (sync only, no auto-predict)
         inp.addEventListener('input', function() {
           var v = parseFloat(this.value);
           if (!isNaN(v) && v >= 0) {
@@ -755,14 +761,22 @@
             sl.value = v;
             if (sv2) sv2.textContent = v.toLocaleString();
           } else { if (sv2) sv2.textContent = ''; }
-          debouncedPredict(420);
         });
 
-        // Slider → input
+        // Clamp to range on blur
+        inp.addEventListener('blur', function() {
+          var v = parseFloat(this.value);
+          if (!isNaN(v)) {
+            var mn = parseFloat(this.min), mx = parseFloat(this.max);
+            if (!isNaN(mn) && v < mn) { this.value = mn; sl.value = mn; if (sv2) sv2.textContent = mn.toLocaleString(); }
+            if (!isNaN(mx) && v > mx) { this.value = mx; sl.value = mx; if (sv2) sv2.textContent = mx.toLocaleString(); }
+          }
+        });
+
+        // Slider → input (sync only, no auto-predict)
         sl.addEventListener('input', function() {
           inp.value = this.value;
           if (sv2) sv2.textContent = Number(this.value).toLocaleString();
-          debouncedPredict(300);
         });
       }
     });

@@ -286,12 +286,12 @@
                 <div style="color:#fff;font-weight:600;font-size:.82rem">Gradient Boosting</div>
               </div>
               <div class="mini-stat">
-                <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px">Accuracy</div>
-                <div style="color:#f87171;font-weight:700;font-size:.82rem">—</div>
+                <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px" id="metricLabel">R²</div>
+                <div style="color:#f87171;font-weight:700;font-size:.82rem" id="metricValue">—</div>
               </div>
               <div class="mini-stat">
-                <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px">Classes</div>
-                <div style="color:#fff;font-weight:600;font-size:.82rem">&mdash;</div>
+                <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px">Est. Error</div>
+                <div style="color:#fff;font-weight:600;font-size:.82rem" id="rmseValue">—</div>
               </div>
             </div>
           </div>
@@ -317,12 +317,27 @@
           <!-- Result state -->
           <div id="resultState" style="display:none;flex:1;flex-direction:column">
 
-            <div style="text-align:center;margin-bottom:24px">
+            <div style="text-align:center;margin-bottom:20px">
               <div class="badge" style="margin-bottom:12px">
-                <span>●</span> <span id="resLabel">Result</span>
+                <span>●</span> <span id="resLabel">Estimated Premium</span>
               </div>
               <div id="resVal" style="font-size:2.6rem;font-weight:900;color:#fff;margin-bottom:6px;letter-spacing:-0.5px;line-height:1.1">&#8212;</div>
-              <div id="resConf" style="color:rgba(255,255,255,.45);font-size:.9rem"></div>
+              <div id="resConf" style="color:rgba(255,255,255,.45);font-size:.88rem;margin-bottom:8px"></div>
+              <div id="benchmarkBadge" style="display:none;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:99px;display:inline-block"></div>
+            </div>
+
+            <!-- Confidence Interval visual (regression only) -->
+            <div id="ciSec" style="display:none;margin-bottom:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px">
+              <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Confidence Interval <span style="font-weight:400;opacity:.6">(±1σ &middot; ~68%)</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:6px">
+                <span id="ciLower">—</span>
+                <span style="color:rgba(255,255,255,.3)">range</span>
+                <span id="ciUpper">—</span>
+              </div>
+              <div style="height:8px;background:rgba(255,255,255,.06);border-radius:99px;position:relative">
+                <div id="ciTrack" style="position:absolute;height:100%;border-radius:99px;background:linear-gradient(90deg,rgba(41,121,255,.35),rgba(41,121,255,.6))"></div>
+                <div id="ciDot" style="position:absolute;width:12px;height:12px;border-radius:50%;background:#2979ff;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 8px rgba(41,121,255,.8)"></div>
+              </div>
             </div>
 
             <div id="probSec" style="display:none;margin-bottom:20px">
@@ -380,11 +395,38 @@
   var resLabel    = document.getElementById('resLabel');
   var probSec     = document.getElementById('probSec');
   var probBars    = document.getElementById('probBars');
-  var errMsg      = document.getElementById('errMsg');
-  var inputSum    = document.getElementById('inputSummary');
-  var fiSec       = document.getElementById('fiSec');
-  var fiBars      = document.getElementById('fiBars');
-  var csvFile     = document.getElementById('csvFile');
+  var errMsg         = document.getElementById('errMsg');
+  var inputSum       = document.getElementById('inputSummary');
+  var fiSec          = document.getElementById('fiSec');
+  var fiBars         = document.getElementById('fiBars');
+  var csvFile        = document.getElementById('csvFile');
+  var ciSec          = document.getElementById('ciSec');
+  var ciLower        = document.getElementById('ciLower');
+  var ciUpper        = document.getElementById('ciUpper');
+  var ciTrack        = document.getElementById('ciTrack');
+  var ciDot          = document.getElementById('ciDot');
+  var benchmarkBadge = document.getElementById('benchmarkBadge');
+  var metricLabel    = document.getElementById('metricLabel');
+  var metricValue    = document.getElementById('metricValue');
+  var rmseValue      = document.getElementById('rmseValue');
+
+  // Populate About strip from /metrics on load
+  fetch('/metrics').then(function(r){ return r.json(); }).then(function(m){
+    if (!m || !m.task) return;
+    if (m.task === 'regression') {
+      var r2 = m.r2, mae = m.mae, rmse = m.rmse;
+      if (r2 !== undefined && r2 >= 0.7) {
+        metricLabel.textContent = 'R²';
+        metricValue.textContent = r2.toFixed(3);
+        metricValue.style.color = r2 >= 0.9 ? '#4ade80' : '#facc15';
+      } else if (mae !== undefined) {
+        metricLabel.textContent = 'MAE';
+        metricValue.textContent = '±' + Math.round(mae);
+        metricValue.style.color = '#facc15';
+      }
+      if (rmse !== undefined) rmseValue.textContent = '±' + Math.round(rmse);
+    }
+  }).catch(function(){});
   var batchResult = document.getElementById('batchResult');
   var uploadTxt   = document.getElementById('uploadTxt');
 
@@ -536,9 +578,43 @@
         });
       }, 60);
     } else {
-      resLabel.textContent = 'Predicted Value';
-      resConf.textContent  = '';
+      resLabel.textContent = 'Estimated Premium';
       probSec.style.display = 'none';
+
+      // Confidence interval
+      if (data.ci_lower !== undefined && data.ci_upper !== undefined) {
+        var lo = data.ci_lower, hi = data.ci_upper, pred = data.prediction;
+        ciLower.textContent = lo < 0 ? '0' : lo.toFixed(2);
+        ciUpper.textContent = hi.toFixed(2);
+        resConf.textContent = 'Range: ' + (lo < 0 ? '0' : lo.toFixed(0)) + ' – ' + hi.toFixed(0) + '  (±1σ)';
+        // Position CI bar (clamp lo to 0 for display)
+        var displayLo = Math.max(0, lo), displayHi = hi;
+        var span = displayHi - displayLo;
+        var leftPct  = span > 0 ? ((pred - displayLo) / (displayHi - displayLo) * 0.8) : 0.1;
+        ciTrack.style.left  = '0';
+        ciTrack.style.width = '100%';
+        ciDot.style.left = Math.max(5, Math.min(95, leftPct * 100)).toFixed(1) + '%';
+        ciSec.style.display = 'block';
+      } else {
+        resConf.textContent = '';
+        ciSec.style.display = 'none';
+      }
+
+      // Benchmark — above/below dataset average
+      var m = data.metrics || {};
+      if (m.target_mean !== undefined && m.target_std !== undefined) {
+        var diff = data.prediction - m.target_mean;
+        var sigma = diff / (m.target_std || 1);
+        var bLabel, bColor, bBg;
+        if (sigma < -0.5)      { bLabel='Below Average'; bColor='#4ade80'; bBg='rgba(74,222,128,.15)'; }
+        else if (sigma > 0.5)  { bLabel='Above Average'; bColor='#f87171'; bBg='rgba(248,113,113,.15)'; }
+        else                   { bLabel='Near Average';  bColor='#facc15'; bBg='rgba(250,204,21,.12)';  }
+        benchmarkBadge.textContent = bLabel;
+        benchmarkBadge.style.color = bColor;
+        benchmarkBadge.style.background = bBg;
+        benchmarkBadge.style.border = '1px solid ' + bColor + '44';
+        benchmarkBadge.style.display = 'inline-block';
+      }
     }
 
     inputSum.innerHTML = '';

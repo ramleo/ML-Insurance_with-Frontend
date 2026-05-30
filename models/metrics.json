@@ -1,0 +1,10 @@
+{
+  "task": "regression",
+  "r2": 0.014,
+  "mae": 667.59,
+  "rmse": 875.27,
+  "target_mean": 1094.86,
+  "target_std": 864.36,
+  "target_min": 20.0,
+  "target_max": 4985.0
+}

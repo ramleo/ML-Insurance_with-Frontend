@@ -15,8 +15,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 pipeline = joblib.load("models/final_pipeline.pkl")
-_fi_file = "models/feature_importance.json"
+_fi_file  = "models/feature_importance.json"
 _feature_importance = json.load(open(_fi_file)) if os.path.exists(_fi_file) else []
+_metrics  = json.load(open("models/metrics.json")) if os.path.exists("models/metrics.json") else {}
+_rmse     = _metrics.get("rmse")
 
 # Pipeline expects these columns (id and Policy Start Date dropped during retraining;
 # Policy Start Date is parsed into 4 numeric components at prediction time).
@@ -99,9 +101,18 @@ def health():
 
 @app.post("/predict")
 def predict(data: InputData):
-    df = data.to_pipeline_df()
-    pred = pipeline.predict(df)[0]
-    return {"prediction": float(pred), "feature_importance": _feature_importance}
+    df   = data.to_pipeline_df()
+    pred = float(pipeline.predict(df)[0])
+    result = {"prediction": pred, "feature_importance": _feature_importance}
+    if _rmse:
+        result["ci_lower"] = round(pred - _rmse, 2)
+        result["ci_upper"] = round(pred + _rmse, 2)
+    result["metrics"] = _metrics
+    return result
+
+@app.get("/metrics")
+def metrics():
+    return _metrics
 
 @app.post("/predict/batch")
 def predict_batch(data: List[InputData]):

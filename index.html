@@ -314,6 +314,40 @@
     [data-theme="light"] #emptyState  { color: rgba(10,26,53,.38) !important; }
     [data-theme="light"] #emptyState div { color: rgba(10,26,53,.38) !important; }
     [data-theme="light"] .glass       { color: #0a1a35; }
+    /* Panel subtitles */
+    [data-theme="light"] #formPanelSub,
+    [data-theme="light"] #resPanelSub { color: rgba(10,26,53,.45) !important; }
+    /* Sidebar section labels */
+    [data-theme="light"] #batchLabel,
+    [data-theme="light"] #aboutLabel  { color: rgba(10,26,53,.42) !important; }
+    /* Confidence Interval section */
+    [data-theme="light"] #ciSec { background: rgba(41,121,255,.05) !important; border-color: rgba(41,121,255,.12) !important; }
+    [data-theme="light"] #ciSec > div:first-child { color: rgba(10,26,53,.42) !important; }
+    [data-theme="light"] #ciSec span { color: rgba(10,26,53,.55) !important; }
+    /* Class Probs and Key Factors section labels */
+    [data-theme="light"] #probSec > div:first-child,
+    [data-theme="light"] #fiSec  > div:first-child { color: rgba(10,26,53,.42) !important; }
+    /* Input Summary container + label */
+    [data-theme="light"] #resultState > div:last-child { background: rgba(41,121,255,.04) !important; border-color: rgba(41,121,255,.12) !important; }
+    [data-theme="light"] #resultState > div:last-child > div:first-child { color: rgba(10,26,53,.42) !important; }
+    [data-theme="light"] #inputSummary span:first-child { color: rgba(10,26,53,.45) !important; }
+    [data-theme="light"] #inputSummary span:last-child  { color: #0a1a35 !important; }
+    /* Feature importance bar labels and tracks */
+    [data-theme="light"] #fiBars span { color: rgba(10,26,53,.65) !important; }
+    [data-theme="light"] #fiBars > div > div:last-child { background: rgba(41,121,255,.09) !important; }
+    /* Probability bar labels */
+    [data-theme="light"] #probBars span { color: rgba(10,26,53,.65) !important; }
+    /* mini-stat card labels and values */
+    [data-theme="light"] .mini-stat > div:first-child { color: rgba(10,26,53,.42) !important; }
+    [data-theme="light"] .mini-stat > div:last-child  { color: #0a1a35 !important; }
+    /* CSV upload text */
+    [data-theme="light"] #uploadTxt { color: rgba(10,26,53,.45) !important; }
+    /* History section */
+    [data-theme="light"] #histCount { color: rgba(10,26,53,.38) !important; }
+    [data-theme="light"] #histSection button { color: rgba(10,26,53,.55) !important; background: rgba(41,121,255,.06) !important; border-color: rgba(41,121,255,.15) !important; }
+    /* Footer */
+    [data-theme="light"] #siteFooter p,
+    [data-theme="light"] #siteFooter span { color: rgba(10,26,53,.35) !important; }
 
     @media (max-width: 768px) {
       #mainGrid { grid-template-columns: 1fr !important; }
@@ -363,7 +397,7 @@
             <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1565c0,#2979ff);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.3)">⚗</div>
             <div>
               <div style="color:#fff;font-weight:700;font-size:1.05rem">Feature Inputs</div>
-              <div style="color:rgba(255,255,255,.38);font-size:.82rem">Enter your feature values below</div>
+              <div id="formPanelSub" style="color:rgba(255,255,255,.38);font-size:.82rem">Enter your feature values below</div>
             </div>
           </div>
 
@@ -490,7 +524,7 @@
           </form>
 
           <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)">
-            <div style="color:rgba(255,255,255,.25);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Batch Predict via CSV</div>
+            <div id="batchLabel" style="color:rgba(255,255,255,.25);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Batch Predict via CSV</div>
             <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.2);border-radius:10px;cursor:pointer">
               <span style="font-size:1.1rem">&#128196;</span>
               <span id="uploadTxt" style="color:rgba(255,255,255,.5);font-size:.83rem">Drop CSV or click to upload</span>
@@ -500,7 +534,7 @@
           </div>
 
           <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">
-            <div style="color:rgba(255,255,255,.25);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">About this model</div>
+            <div id="aboutLabel" style="color:rgba(255,255,255,.25);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">About this model</div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
               <div class="mini-stat">
                 <div style="color:rgba(255,255,255,.35);font-size:.7rem;margin-bottom:4px">Algorithm</div>
@@ -524,7 +558,7 @@
             <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#2979ff,#1565c0);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.3)">◎</div>
             <div>
               <div style="color:#fff;font-weight:700;font-size:1.05rem">Prediction Result</div>
-              <div style="color:rgba(255,255,255,.38);font-size:.82rem">Output from your trained model</div>
+              <div id="resPanelSub" style="color:rgba(255,255,255,.38);font-size:.82rem">Output from your trained model</div>
             </div>
           </div>
 
@@ -614,7 +648,7 @@
       </div>
 
       <!-- Footer -->
-      <div style="text-align:center;margin-top:40px">
+      <div id="siteFooter" style="text-align:center;margin-top:40px">
         <p style="color:rgba(255,255,255,.18);font-size:.82rem">
           Powered by
           <span style="color:rgba(255,255,255,.35);font-weight:600">FastAPI</span> &middot;
@@ -697,10 +731,9 @@
         var hi   = Math.round(m.target_mean + 0.5 * m.target_std);
         var tip  = document.getElementById('benchmarkTooltip');
         if (tip) tip.innerHTML =
-          '<b>Dataset average:</b> $' + avg.toLocaleString() + ' &plusmn; $' + std.toLocaleString() + '<br>' +
-          '<span style="color:#4ade80">&#9650; Below Average</span>: premium &lt; $' + lo.toLocaleString() + ' (good — lower cost)<br>' +
-          '<span style="color:#facc15">&#9654; Near Average</span>: $' + lo.toLocaleString() + ' – $' + hi.toLocaleString() + '<br>' +
-          '<span style="color:#f87171">&#9660; Above Average</span>: premium &gt; $' + hi.toLocaleString() + ' (higher cost)';
+          '<span style="color:#4ade80">&#9650; Below Average</span> — Your premium is lower than most customers<br>' +
+          '<span style="color:#facc15">&#9654; Near Average</span> — Typical premium for your profile<br>' +
+          '<span style="color:#f87171">&#9660; Above Average</span> — Your premium is higher than most customers';
       }
     }
   }).catch(function(){});

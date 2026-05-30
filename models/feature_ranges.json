@@ -9,7 +9,7 @@
     "min": 0,
     "max": null,
     "slider_max": 500000,
-    "step": 1000,
+    "step": 0.01,
     "note": "No upper limit; slider defaults to 500,000 and expands as you type"
   },
   "Number of Dependents": {

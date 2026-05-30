@@ -1,0 +1,42 @@
+{
+  "Age": {
+    "min": 18.0,
+    "max": 66.3,
+    "step": 1
+  },
+  "Annual Income": {
+    "min": 17.0,
+    "max": 157493.9,
+    "step": 1000
+  },
+  "Number of Dependents": {
+    "min": 0,
+    "max": 4.2,
+    "step": 1
+  },
+  "Health Score": {
+    "min": 2.46,
+    "max": 58.63,
+    "step": 0.1
+  },
+  "Previous Claims": {
+    "min": 0,
+    "max": 8.4,
+    "step": 1
+  },
+  "Vehicle Age": {
+    "min": 0,
+    "max": 19.95,
+    "step": 1
+  },
+  "Credit Score": {
+    "min": 300.0,
+    "max": 876.45,
+    "step": 1
+  },
+  "Insurance Duration": {
+    "min": 1.0,
+    "max": 9.4,
+    "step": 1
+  }
+}

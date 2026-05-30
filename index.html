@@ -141,6 +141,33 @@
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 3px; }
 
+    .slider {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px; margin-top: 6px;
+      background: rgba(255,255,255,.13); border-radius: 99px;
+      outline: none; cursor: pointer; display: block;
+    }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px;
+      border-radius: 50%; background: #2979ff; cursor: pointer;
+      box-shadow: 0 0 6px rgba(41,121,255,.7);
+    }
+    .slider::-moz-range-thumb {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #2979ff; cursor: pointer; border: none;
+    }
+
+    .hist-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    .hist-table th { padding: 8px 12px; text-align: left; color: rgba(255,255,255,.3);
+      font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+      border-bottom: 1px solid rgba(255,255,255,.08); white-space: nowrap; }
+    .hist-table td { padding: 9px 12px; color: rgba(255,255,255,.65);
+      border-bottom: 1px solid rgba(255,255,255,.04); white-space: nowrap; }
+    .hist-table tr:last-child td { border-bottom: none; }
+    .hist-table tr:hover td { background: rgba(255,255,255,.03); }
+    .hist-table .pred-col { color: #fff; font-weight: 700; }
+    .hist-table .run-col  { color: rgba(255,255,255,.25); }
+
     @media (max-width: 768px) {
       #mainGrid { grid-template-columns: 1fr !important; }
       .hero-h1  { font-size: 2rem !important; }
@@ -362,6 +389,27 @@
             <div class="err-box" id="errMsg"></div>
           </div>
 
+        </div>
+      </div>
+
+      <!-- Comparison table -->
+      <div id="histSection" style="display:none;margin-top:24px">
+        <div class="glass" style="border-radius:16px;padding:20px 24px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div>
+              <span style="color:#fff;font-weight:700;font-size:.95rem">Prediction History</span>
+              <span id="histCount" style="color:rgba(255,255,255,.3);font-size:.8rem;margin-left:8px"></span>
+            </div>
+            <button onclick="clearHistory()" style="padding:5px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:rgba(255,255,255,.55);font-size:.78rem;cursor:pointer">
+              Clear
+            </button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="hist-table">
+              <thead id="histHead"></thead>
+              <tbody id="histBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -652,6 +700,8 @@
     void resultState.offsetWidth;
     resultState.classList.add('fade-up');
     errState.style.display = 'none';
+
+    addToHistory(data);
   }
 
   function showError(msg) {
@@ -659,6 +709,134 @@
     errState.style.display    = 'block';
     resultState.style.display = 'none';
     emptyState.style.display  = 'none';
+  }
+
+  // ── Sliders ────────────────────────────────────────────────────────────────
+  var _debounceTimer = null;
+  function debouncedPredict(ms) {
+    clearTimeout(_debounceTimer);
+    _debounceTimer = setTimeout(function() {
+      if (_serverReady) pForm.dispatchEvent(new Event('submit', {bubbles:true, cancelable:true}));
+    }, ms || 400);
+  }
+
+  function _slKey(name) { return name.replace(/\s+/g, '_'); }
+
+  function initSliders(ranges) {
+    document.querySelectorAll('.inp[type="number"]').forEach(function(inp) {
+      var fname = inp.name;
+      var key   = _slKey(fname);
+      var r     = (ranges && ranges[fname]) || {min: 0, max: 100, step: 1};
+
+      // Value display span inside the label
+      var lbl = inp.parentElement.querySelector('.inp-lbl');
+      if (lbl && !lbl.querySelector('.sv')) {
+        var sv = document.createElement('span');
+        sv.className = 'sv';
+        sv.id = 'sv_' + key;
+        sv.style.cssText = 'float:right;color:#2979ff;font-size:.73rem;font-weight:600;letter-spacing:0';
+        lbl.appendChild(sv);
+      }
+
+      // Slider element
+      if (!document.getElementById('sl_' + key)) {
+        var sl = document.createElement('input');
+        sl.type = 'range'; sl.className = 'slider'; sl.id = 'sl_' + key;
+        sl.min = r.min; sl.max = r.max; sl.step = r.step;
+        inp.parentElement.appendChild(sl);
+
+        var sv2 = document.getElementById('sv_' + key);
+
+        // Input → slider
+        inp.addEventListener('input', function() {
+          var v = parseFloat(this.value);
+          if (!isNaN(v) && v >= 0) {
+            if (v > parseFloat(sl.max)) { sl.max = Math.ceil(v * 2); }
+            sl.value = v;
+            if (sv2) sv2.textContent = v.toLocaleString();
+          } else { if (sv2) sv2.textContent = ''; }
+          debouncedPredict(420);
+        });
+
+        // Slider → input
+        sl.addEventListener('input', function() {
+          inp.value = this.value;
+          if (sv2) sv2.textContent = Number(this.value).toLocaleString();
+          debouncedPredict(300);
+        });
+      }
+    });
+  }
+
+  // Load ranges from API, fall back to auto-range
+  fetch('/ranges').then(function(r) { return r.json(); })
+    .then(function(ranges) { initSliders(ranges); })
+    .catch(function() { initSliders(null); });
+
+  // ── Prediction history / comparison table ──────────────────────────────────
+  var _history   = [];
+  var _histCols  = ['Annual Income','Credit Score','Health Score','Previous Claims','Insurance Duration'];
+
+  function addToHistory(data) {
+    var entry = {
+      inputs:     {},
+      prediction: data.prediction,
+      ci_lower:   data.ci_lower,
+      ci_upper:   data.ci_upper,
+      metrics:    data.metrics
+    };
+    document.querySelectorAll('#pForm .inp').forEach(function(inp) {
+      if (inp.value !== '' && inp.value !== undefined) entry.inputs[inp.name] = inp.value;
+    });
+    _history.push(entry);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    var histSection = document.getElementById('histSection');
+    var histHead    = document.getElementById('histHead');
+    var histBody    = document.getElementById('histBody');
+    var histCount   = document.getElementById('histCount');
+
+    if (_history.length < 2) return; // need at least 2 to compare
+    histSection.style.display = 'block';
+    histCount.textContent = '(' + _history.length + ' runs)';
+
+    // Header
+    var cols = ['#'].concat(_histCols).concat(['Premium ($)', 'Range', 'vs Avg']);
+    histHead.innerHTML = '<tr>' + cols.map(function(c) {
+      return '<th>' + c + '</th>';
+    }).join('') + '</tr>';
+
+    // Rows — highlight cells that changed vs previous run
+    histBody.innerHTML = _history.map(function(e, i) {
+      var prev = i > 0 ? _history[i - 1] : null;
+      var sigma = (e.metrics && e.metrics.target_mean !== undefined)
+        ? (e.prediction - e.metrics.target_mean) / (e.metrics.target_std || 1) : null;
+      var bench  = sigma === null ? '—' : sigma < -0.5 ? '↓ Below' : sigma > 0.5 ? '↑ Above' : '→ Avg';
+      var bColor = sigma === null ? '' : sigma < -0.5 ? 'color:#4ade80' : sigma > 0.5 ? 'color:#f87171' : 'color:#facc15';
+      var range  = (e.ci_lower !== undefined)
+        ? (Math.max(0, e.ci_lower).toFixed(0) + ' – ' + e.ci_upper.toFixed(0)) : '—';
+
+      var cells = _histCols.map(function(col) {
+        var val = e.inputs[col] !== undefined ? Number(e.inputs[col]).toLocaleString() : '—';
+        var changed = prev && prev.inputs[col] !== e.inputs[col];
+        return '<td style="' + (changed ? 'color:#fff;font-weight:600' : '') + '">' + val + '</td>';
+      });
+
+      return '<tr>' +
+        '<td class="run-col">' + (i + 1) + '</td>' +
+        cells.join('') +
+        '<td class="pred-col">$' + e.prediction.toFixed(2) + '</td>' +
+        '<td>' + range + '</td>' +
+        '<td style="font-weight:600;' + bColor + '">' + bench + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function clearHistory() {
+    _history = [];
+    document.getElementById('histSection').style.display = 'none';
   }
 </script>
 </body>

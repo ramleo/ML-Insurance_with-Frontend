@@ -274,7 +274,9 @@
       padding-right: 32px;
     }
     [data-theme="light"] select.inp {
+      background-color: #fff;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(10,26,53,.5)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
     }
     select.inp option { background: #0d1829; color: #fff; }
     [data-theme="light"] select.inp option { background: #f0f5ff; color: #0a1a35; }
@@ -314,7 +316,9 @@
     [data-theme="light"] #emptyState  { color: rgba(10,26,53,.38) !important; }
     [data-theme="light"] #emptyState div { color: rgba(10,26,53,.38) !important; }
     [data-theme="light"] .glass       { color: #0a1a35; }
-    /* Panel subtitles */
+    /* Panel titles and subtitles */
+    [data-theme="light"] #formPanelTitle,
+    [data-theme="light"] #resPanelTitle { color: #0a1a35 !important; }
     [data-theme="light"] #formPanelSub,
     [data-theme="light"] #resPanelSub { color: rgba(10,26,53,.45) !important; }
     /* Sidebar section labels */
@@ -396,12 +400,12 @@
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
             <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1565c0,#2979ff);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.3)">⚗</div>
             <div>
-              <div style="color:#fff;font-weight:700;font-size:1.05rem">Feature Inputs</div>
+              <div id="formPanelTitle" style="color:#fff;font-weight:700;font-size:1.05rem">Feature Inputs</div>
               <div id="formPanelSub" style="color:rgba(255,255,255,.38);font-size:.82rem">Enter your feature values below</div>
             </div>
           </div>
 
-          <form id="pForm">
+          <form id="pForm" autocomplete="off">
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px">
               
           <div>
@@ -557,7 +561,7 @@
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
             <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#2979ff,#1565c0);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.3)">◎</div>
             <div>
-              <div style="color:#fff;font-weight:700;font-size:1.05rem">Prediction Result</div>
+              <div id="resPanelTitle" style="color:#fff;font-weight:700;font-size:1.05rem">Prediction Result</div>
               <div id="resPanelSub" style="color:rgba(255,255,255,.38);font-size:.82rem">Output from your trained model</div>
             </div>
           </div>
@@ -577,14 +581,7 @@
                 <span>●</span> <span id="resLabel">Estimated Premium</span>
               </div>
               <div id="resVal" style="font-size:2.6rem;font-weight:900;color:#fff;margin-bottom:6px;letter-spacing:-0.5px;line-height:1.1">&#8212;</div>
-              <div id="resConf" style="color:rgba(255,255,255,.45);font-size:.88rem;margin-bottom:8px"></div>
-              <div style="display:inline-flex;align-items:center;gap:4px">
-                <div id="benchmarkBadge" style="display:none;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:99px"></div>
-                <div class="tip-wrap" id="benchmarkTipWrap" style="display:none">
-                  <span class="tip-icon">?</span>
-                  <div class="tip-box" id="benchmarkTooltip">Loading…</div>
-                </div>
-              </div>
+              <div id="resConf" style="display:none"></div>
             </div>
 
             <!-- Confidence Interval visual (regression only) -->
@@ -701,7 +698,6 @@
   var ciUpper        = document.getElementById('ciUpper');
   var ciTrack        = document.getElementById('ciTrack');
   var ciDot          = document.getElementById('ciDot');
-  var benchmarkBadge = document.getElementById('benchmarkBadge');
   var metricLabel    = document.getElementById('metricLabel');
   var metricValue    = document.getElementById('metricValue');
   var rmseValue      = document.getElementById('rmseValue');
@@ -724,17 +720,6 @@
       }
       if (rmse !== undefined) rmseValue.textContent = '±' + Math.round(rmse);
       // Populate benchmark tooltip
-      if (m.target_mean !== undefined && m.target_std !== undefined) {
-        var avg  = Math.round(m.target_mean);
-        var std  = Math.round(m.target_std);
-        var lo   = Math.max(0, Math.round(m.target_mean - 0.5 * m.target_std));
-        var hi   = Math.round(m.target_mean + 0.5 * m.target_std);
-        var tip  = document.getElementById('benchmarkTooltip');
-        if (tip) tip.innerHTML =
-          '<span style="color:#4ade80">&#9650; Below Average</span> — Your premium is lower than most customers<br>' +
-          '<span style="color:#facc15">&#9654; Near Average</span> — Typical premium for your profile<br>' +
-          '<span style="color:#f87171">&#9660; Above Average</span> — Your premium is higher than most customers';
-      }
     }
   }).catch(function(){});
   var batchResult = document.getElementById('batchResult');
@@ -897,41 +882,19 @@
       resLabel.textContent = 'Estimated Premium';
       probSec.style.display = 'none';
 
-      // Confidence interval
+      // Confidence interval visual only (no text)
       if (data.ci_lower !== undefined && data.ci_upper !== undefined) {
         var lo = data.ci_lower, hi = data.ci_upper, pred = data.prediction;
         ciLower.textContent = lo < 0 ? '0' : lo.toFixed(2);
         ciUpper.textContent = hi.toFixed(2);
-        resConf.textContent = 'Range: ' + (lo < 0 ? '0' : lo.toFixed(0)) + ' – ' + hi.toFixed(0) + '  (±1σ)';
-        // Position CI bar (clamp lo to 0 for display)
         var displayLo = Math.max(0, lo), displayHi = hi;
-        var span = displayHi - displayLo;
-        var leftPct  = span > 0 ? ((pred - displayLo) / (displayHi - displayLo) * 0.8) : 0.1;
+        var leftPct  = (displayHi - displayLo) > 0 ? ((pred - displayLo) / (displayHi - displayLo) * 0.8) : 0.1;
         ciTrack.style.left  = '0';
         ciTrack.style.width = '100%';
         ciDot.style.left = Math.max(5, Math.min(95, leftPct * 100)).toFixed(1) + '%';
         ciSec.style.display = 'block';
       } else {
-        resConf.textContent = '';
         ciSec.style.display = 'none';
-      }
-
-      // Benchmark — above/below dataset average
-      var m = data.metrics || {};
-      if (m.target_mean !== undefined && m.target_std !== undefined) {
-        var diff = data.prediction - m.target_mean;
-        var sigma = diff / (m.target_std || 1);
-        var bLabel, bColor, bBg;
-        if (sigma < -0.5)      { bLabel='Below Average'; bColor='#4ade80'; bBg='rgba(74,222,128,.15)'; }
-        else if (sigma > 0.5)  { bLabel='Above Average'; bColor='#f87171'; bBg='rgba(248,113,113,.15)'; }
-        else                   { bLabel='Near Average';  bColor='#facc15'; bBg='rgba(250,204,21,.12)';  }
-        benchmarkBadge.textContent = bLabel;
-        benchmarkBadge.style.color = bColor;
-        benchmarkBadge.style.background = bBg;
-        benchmarkBadge.style.border = '1px solid ' + bColor + '44';
-        benchmarkBadge.style.display = 'inline-block';
-        var tipWrap = document.getElementById('benchmarkTipWrap');
-        if (tipWrap) tipWrap.style.display = 'inline-flex';
       }
     }
 
@@ -1015,6 +978,7 @@
         var sl = document.createElement('input');
         sl.type = 'range'; sl.className = 'slider'; sl.id = 'sl_' + key;
         sl.min = r.min; sl.max = slMax; sl.step = r.step;
+        sl.tabIndex = -1;
         inp.parentElement.appendChild(sl);
 
         var sv2 = document.getElementById('sv_' + key);

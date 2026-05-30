@@ -42,6 +42,7 @@
       --td-color:     rgba(255,255,255,.65);
       --td-border:    rgba(255,255,255,.04);
       --tr-hover:     rgba(255,255,255,.03);
+      --tr-even:      rgba(255,255,255,.028);
       --pred-col:     #fff;
       --run-col:      rgba(255,255,255,.25);
       --txt-primary:  #fff;
@@ -85,6 +86,7 @@
       --td-color:     rgba(10,26,53,.72);
       --td-border:    rgba(41,121,255,.07);
       --tr-hover:     rgba(41,121,255,.05);
+      --tr-even:      rgba(41,121,255,.04);
       --pred-col:     #0a1a35;
       --run-col:      rgba(10,26,53,.3);
       --txt-primary:  #0a1a35;
@@ -305,6 +307,7 @@
     .hist-table td { padding: 9px 12px; color: var(--td-color);
       border-bottom: 1px solid var(--td-border); white-space: nowrap; }
     .hist-table tr:last-child td { border-bottom: none; }
+    .hist-table tbody tr:nth-child(even) td { background: var(--tr-even); }
     .hist-table tr:hover td { background: var(--tr-hover); }
     .hist-table .pred-col { color: var(--pred-col); font-weight: 700; }
     .hist-table .run-col  { color: var(--run-col); }
@@ -327,7 +330,8 @@
     /* Confidence Interval section */
     [data-theme="light"] #ciSec { background: rgba(41,121,255,.05) !important; border-color: rgba(41,121,255,.12) !important; }
     [data-theme="light"] #ciSec > div:first-child { color: rgba(10,26,53,.42) !important; }
-    [data-theme="light"] #ciSec span { color: rgba(10,26,53,.55) !important; }
+    [data-theme="light"] #ciSec span:not(.tip-box):not(.tip-icon):not(.tip-wrap) { color: rgba(10,26,53,.55) !important; }
+    [data-theme="light"] #ciSec .tip-box { color: var(--tip-c) !important; }
     /* Class Probs and Key Factors section labels */
     [data-theme="light"] #probSec > div:first-child,
     [data-theme="light"] #fiSec  > div:first-child { color: rgba(10,26,53,.42) !important; }
@@ -586,10 +590,21 @@
 
             <!-- Confidence Interval visual (regression only) -->
             <div id="ciSec" style="display:none;margin-bottom:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px">
-              <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Confidence Interval <span style="font-weight:400;opacity:.6">(±1σ &middot; ~68%)</span></div>
+              <div style="color:rgba(255,255,255,.28);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center">
+                Likely Premium Range
+                <span class="tip-wrap">
+                  <span class="tip-icon">?</span>
+                  <span class="tip-box" style="white-space:normal;max-width:270px;text-align:left;font-size:.74rem;line-height:1.55;font-weight:400;text-transform:none;letter-spacing:0">
+                    <strong style="display:block;margin-bottom:4px">What is this?</strong>
+                    Your predicted premium may not be exact — the model estimates a <em>realistic range</em> it could fall within.<br><br>
+                    The two numbers show the <strong>low end</strong> and <strong>high end</strong> of that range. There's about a <strong>68% chance</strong> your actual premium lands somewhere in between.<br><br>
+                    The <strong style="color:#2979ff">blue dot</strong> marks where your specific prediction sits within that range.
+                  </span>
+                </span>
+              </div>
               <div style="display:flex;justify-content:space-between;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:6px">
                 <span id="ciLower">—</span>
-                <span style="color:rgba(255,255,255,.3)">range</span>
+                <span style="color:rgba(255,255,255,.3)">to</span>
                 <span id="ciUpper">—</span>
               </div>
               <div style="height:8px;background:rgba(255,255,255,.06);border-radius:99px;position:relative">
@@ -1059,7 +1074,7 @@
     histCount.textContent = '(' + _history.length + ' runs)';
 
     // Header
-    var cols = ['#'].concat(_histCols).concat(['Premium ($)', 'Range', 'vs Avg']);
+    var cols = ['#'].concat(_histCols).concat(['Premium ($)', 'Range']);
     histHead.innerHTML = '<tr>' + cols.map(function(c) {
       return '<th>' + c + '</th>';
     }).join('') + '</tr>';
@@ -1067,10 +1082,6 @@
     // Rows — highlight cells that changed vs previous run
     histBody.innerHTML = _history.map(function(e, i) {
       var prev = i > 0 ? _history[i - 1] : null;
-      var sigma = (e.metrics && e.metrics.target_mean !== undefined)
-        ? (e.prediction - e.metrics.target_mean) / (e.metrics.target_std || 1) : null;
-      var bench  = sigma === null ? '—' : sigma < -0.5 ? '↓ Below' : sigma > 0.5 ? '↑ Above' : '→ Avg';
-      var bColor = sigma === null ? '' : sigma < -0.5 ? 'color:#4ade80' : sigma > 0.5 ? 'color:#f87171' : 'color:#facc15';
       var range  = (e.ci_lower !== undefined)
         ? (Math.max(0, e.ci_lower).toFixed(0) + ' – ' + e.ci_upper.toFixed(0)) : '—';
 
@@ -1085,7 +1096,6 @@
         cells.join('') +
         '<td class="pred-col">$' + e.prediction.toFixed(2) + '</td>' +
         '<td>' + range + '</td>' +
-        '<td style="font-weight:600;' + bColor + '">' + bench + '</td>' +
         '</tr>';
     }).join('');
   }

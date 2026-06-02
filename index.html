@@ -324,6 +324,8 @@
     [data-theme="light"] #resConf     { color: rgba(10,26,53,.5) !important; }
     [data-theme="light"] #srvTxt      { color: rgba(10,26,53,.7) !important; }
     [data-theme="light"] #emptyState  { color: rgba(10,26,53,.38) !important; }
+    [data-theme="light"] button[onclick="clearAllFields()"] { color:#334155 !important; background:rgba(0,0,0,.04) !important; border-color:rgba(0,0,0,.15) !important; }
+    [data-theme="light"] button[onclick="fillSample()"] { color:#1e40af !important; background:rgba(37,99,235,.1) !important; border-color:rgba(37,99,235,.3) !important; }
     [data-theme="light"] #emptyState div { color: rgba(10,26,53,.38) !important; }
     [data-theme="light"] .glass       { color: #0a1a35; }
     /* Panel titles and subtitles */
@@ -534,7 +536,7 @@
             </select>
           </div>
             </div>
-            <button type="submit" class="btn-predict" id="pBtn">
+            <div style="display:flex;gap:8px;margin-bottom:10px"><button type="button" onclick="fillSample()" style="flex:1;padding:9px 0;background:rgba(41,121,255,.15);border:1px solid rgba(41,121,255,.35);border-radius:10px;color:#2979ff;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s">⚡ Fill Sample</button><button type="button" onclick="clearAllFields()" style="flex:1;padding:9px 0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:rgba(255,255,255,.6);font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s">Clear</button></div><button type="submit" class="btn-predict" id="pBtn">
               <span id="btnTxt">Predict</span>
             </button>
           </form>
@@ -1090,6 +1092,28 @@
         '<td>' + range + '</td>' +
         '</tr>';
     }).join('');
+  }
+
+  function clearAllFields() {
+    document.querySelectorAll('#pForm .inp').forEach(function(el) {
+      if (el.tagName === 'SELECT') { el.selectedIndex = 0; }
+      else { el.value = ''; }
+      el.dispatchEvent(new Event('input'));
+    });
+    emptyState.style.display  = 'flex';
+    resultState.style.display = 'none';
+    if (typeof errState !== 'undefined') errState.style.display = 'none';
+  }
+
+  var SAMPLE_DATA = {"Annual Income": 75000, "Previous Claims": 1, "Credit Score": 680, "Insurance Duration": 8, "Health Score": 72.5, "Age": 35, "Number of Dependents": 2, "Vehicle Age": 5, "Gender": "Male", "Marital Status": "Married", "Education Level": "Bachelor's", "Occupation": "Employed", "Location": "Urban", "Policy Type": "Comprehensive", "Smoking Status": "No", "Exercise Frequency": "Weekly", "Property Type": "House"};
+  function fillSample() {
+    Object.keys(SAMPLE_DATA).forEach(function(name) {
+      var el = document.querySelector('#pForm [name="' + name + '"]');
+      if (!el) return;
+      el.value = SAMPLE_DATA[name];
+      el.dispatchEvent(new Event('input'));
+      el.dispatchEvent(new Event('change'));
+    });
   }
 
   function clearHistory() {
